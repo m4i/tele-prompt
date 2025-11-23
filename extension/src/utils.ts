@@ -27,10 +27,8 @@ export const DEFAULT_SETTINGS: Settings = {
   serverUrl: 'http://localhost:5858',
   apiKey: '',
   targetSelectors: [
-    { urlPattern: 'gemini.google.com', selector: 'div[contenteditable="true"]' },
-    { urlPattern: 'chatgpt.com', selector: '#prompt-textarea' },
-    { urlPattern: 'claude.ai', selector: 'div[contenteditable="true"]' }
-  ]
+    { urlPattern: 'https://github.com/m4i/tele-prompt/blob/main/sample.md', selector: '.teleprompt-item' },
+  ],
 };
 
 export const getSettings = async (): Promise<Settings> => {
@@ -41,7 +39,7 @@ export const getSettings = async (): Promise<Settings> => {
       apiKey: stored.apiKey || DEFAULT_SETTINGS.apiKey,
       targetSelectors: Array.isArray(stored.targetSelectors)
         ? stored.targetSelectors
-        : DEFAULT_SETTINGS.targetSelectors
+        : DEFAULT_SETTINGS.targetSelectors,
     };
   } catch (error) {
     return DEFAULT_SETTINGS;
@@ -76,7 +74,7 @@ export const removeReceivingTab = async (tabId: number) => setReceivingTab(tabId
 
 export const urlMatchesPattern = (href: string, pattern: string): boolean => {
   try {
-    const regexp = new RegExp(pattern);
+    const regexp = wildcardToRegExp(pattern);
     return regexp.test(href);
   } catch (error) {
     return href.includes(pattern);
@@ -86,6 +84,13 @@ export const urlMatchesPattern = (href: string, pattern: string): boolean => {
 export const findMatchingSelector = (href: string, selectors: TargetSelector[]): string | null => {
   const match = selectors.find((entry) => urlMatchesPattern(href, entry.urlPattern));
   return match ? match.selector : null;
+};
+
+const wildcardToRegExp = (pattern: string): RegExp => {
+  // Escape regex special chars except * which will act as wildcard.
+  const escaped = pattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&');
+  const withWildcards = escaped.replace(/\*/g, '.*');
+  return new RegExp(withWildcards);
 };
 
 export const isSupportedServiceUrl = (href?: string | null): boolean => {
@@ -105,7 +110,7 @@ export const isSupportedServiceUrl = (href?: string | null): boolean => {
 
 export const buildAuthHeaders = (apiKey: string): Record<string, string> => ({
   'Content-Type': 'application/json',
-  'X-Api-Key': apiKey || ''
+  'X-Api-Key': apiKey || '',
 });
 
 export const nowTimestamp = () => Date.now();

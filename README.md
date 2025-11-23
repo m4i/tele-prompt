@@ -23,6 +23,7 @@ Seamlessly send text and screenshots between pages and auto-fill AI chat inputs 
 3. `npm run build` (outputs to `public/dist`).
 4. Load unpacked extension from `extension/public` in Chrome.
 5. Open the options page to set the same server URL/API key and adjust target selectors if needed.
+- Default target selector points to the sample prompts page in this repo (`sample.md` on GitHub, selector `.markdown-body`). Update to your own targets as needed.
 
 ## Usage
 

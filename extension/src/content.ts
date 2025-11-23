@@ -6,7 +6,7 @@ const CMD_CAPTURE = 'CMD_CAPTURE';
 
 let isUploading = false;
 
-const sendMessage = <T,>(payload: any) =>
+const sendMessage = <T>(payload: any) =>
   new Promise<T>((resolve, reject) => {
     chrome.runtime.sendMessage(payload, (response) => {
       if (chrome.runtime.lastError) {
@@ -20,7 +20,7 @@ const sendMessage = <T,>(payload: any) =>
 document.addEventListener('dblclick', async (event) => {
   if (isUploading) return;
   const settings = await getSettings();
-  const selector = findMatchingSelector(window.location.href, settings.targetSelectors);
+  const selector = findMatchingSelector(document.location.href, settings.targetSelectors);
   if (!selector) return;
 
   const target = (event.target as HTMLElement | null)?.closest(selector) as HTMLElement | null;
@@ -29,7 +29,10 @@ document.addEventListener('dblclick', async (event) => {
   isUploading = true;
   try {
     const rect = target.getBoundingClientRect();
-    const captureResponse = await sendMessage<{ ok: boolean; image?: string; error?: string }>({ type: CMD_CAPTURE });
+    console.debug('TelePrompt: dblclick target matched', { selector, rect });
+    const captureResponse = await sendMessage<{ ok: boolean; image?: string; error?: string }>({
+      type: CMD_CAPTURE,
+    });
     if (!captureResponse?.ok || !captureResponse.image) {
       console.error('Capture failed', captureResponse?.error);
       return;
@@ -39,10 +42,18 @@ document.addEventListener('dblclick', async (event) => {
     const payload: Payload = {
       image: croppedImage,
       text: target.innerText?.trim() || undefined,
-      timestamp: nowTimestamp()
+      timestamp: nowTimestamp(),
     };
+    console.debug('TelePrompt: uploading payload', {
+      hasImage: Boolean(payload.image),
+      hasText: Boolean(payload.text),
+      timestamp: payload.timestamp,
+    });
 
-    const uploadResponse = await sendMessage<{ ok: boolean; error?: string }>({ type: CMD_UPLOAD, payload });
+    const uploadResponse = await sendMessage<{ ok: boolean; error?: string }>({
+      type: CMD_UPLOAD,
+      payload,
+    });
     if (!uploadResponse?.ok) {
       console.error('Upload failed', uploadResponse?.error);
     }

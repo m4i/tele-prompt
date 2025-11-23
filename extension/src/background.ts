@@ -35,6 +35,11 @@ chrome.contextMenus.onClicked.addListener(async (info) => {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type === CMD_UPLOAD) {
+    console.debug('TelePrompt BG: CMD_UPLOAD received', {
+      fromTab: sender?.tab?.id,
+      hasImage: Boolean(message?.payload?.image),
+      hasText: Boolean(message?.payload?.text)
+    });
     uploadPayload(message.payload)
       .then((result) => sendResponse(result))
       .catch((error) => sendResponse({ ok: false, error: String(error) }));

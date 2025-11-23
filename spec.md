@@ -76,6 +76,7 @@ The Receiver function operates only when explicitly enabled by the user via the 
 - `host_permissions`: `<all_urls>`
 - `action`: `default_popup`: `popup.html`
 - `background`: `service_worker` (`dist/background.js`)
+- `content_scripts`: injected on all frames (`all_frames: true`)
 
 **A. Background Script (`background.ts` - Central Hub):**
 
@@ -91,7 +92,7 @@ The Receiver function operates only when explicitly enabled by the user via the 
 - Manage via `chrome.storage.sync`:
   1.  `serverUrl` (Default: `http://localhost:5858`)
   2.  `apiKey` (This will be sent in the `X-Api-Key` header)
-  3.  `targetSelectors`: Array of `{ urlPattern: string, selector: string }`.
+  3.  `targetSelectors`: Array of `{ urlPattern: string, selector: string }`. Default points to `https://github.com/m4i/tele-prompt/blob/main/sample.md` with `.teleprompt-item`.
 
 **C. Popup (`popup.ts`):**
 
