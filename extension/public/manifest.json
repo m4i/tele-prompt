@@ -3,7 +3,7 @@
   "name": "TelePrompt",
   "version": "1.0.0",
   "description": "Send selections and screenshots between pages and auto-fill AI chat boxes.",
-  "permissions": ["contextMenus", "activeTab", "storage", "scripting"],
+  "permissions": ["contextMenus", "activeTab", "storage", "scripting", "tabs", "windows"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "dist/background.js"

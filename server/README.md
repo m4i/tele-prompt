@@ -13,7 +13,7 @@ npm install
 2. Configure environment:
 
 - Copy `.env` and set `API_KEY` to your secret key.
-- Optional: set `PORT` (default `5000`).
+- Optional: set `PORT` (default `5858`).
 
 ## Running
 
@@ -25,7 +25,7 @@ npm start     # run once with tsx
 ## Endpoints
 
 - `GET /health` → `OK` for health checks.
-- `POST /upload` → store payload after validating `X-Api-Key` header.
+- `POST /upload` → store payload after validating `X-Api-Key` header (server stamps `timestamp` when received).
 - `GET /fetch` → retrieve and clear the latest payload, or `{ found: false }` when empty.
 
 Payload shape:
@@ -34,7 +34,7 @@ Payload shape:
 interface Payload {
   image?: string; // Base64 data URL
   text?: string;  // Text content
-  timestamp: number;
+  timestamp: number; // set by server on receipt
 }
 ```
 

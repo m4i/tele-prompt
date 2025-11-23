@@ -52,7 +52,7 @@ The Receiver function operates only when explicitly enabled by the user via the 
   interface Payload {
     image?: string; // Base64 Data URL
     text?: string; // Text content
-    timestamp: number;
+    timestamp: number; // stamped by server on receipt
   }
   ```
 
@@ -61,8 +61,9 @@ The Receiver function operates only when explicitly enabled by the user via the 
 - **Environment Variables**:
   - Create a `.env` file in the root of `/server`.
   - Variable: `API_KEY` (The secret key used for validation).
+  - Optional: `PORT` (default `5858`).
 - **Functions**:
-  - `POST /upload`: Validates the `X-Api-Key` header against `process.env.API_KEY`. Stores the payload in memory.
+  - `POST /upload`: Validates the `X-Api-Key` header against `process.env.API_KEY`. Stores the latest payload in memory and stamps `timestamp` server-side.
   - `GET /fetch`: Returns the payload and clears memory. Returns `found: false` if empty.
   - `GET /health`: Health check ("OK").
 - **CORS**: **Not required**. The Chrome Extension (Background Script) bypasses CORS restrictions due to `host_permissions` configured in the manifest.
@@ -71,7 +72,7 @@ The Receiver function operates only when explicitly enabled by the user via the 
 
 **Manifest V3 Settings (`manifest.json`):**
 
-- `permissions`: `contextMenus`, `activeTab`, `storage`, `scripting`
+- `permissions`: `contextMenus`, `activeTab`, `storage`, `scripting`, `tabs`, `windows`
 - `host_permissions`: `<all_urls>`
 - `action`: `default_popup`: `popup.html`
 - `background`: `service_worker` (`dist/background.js`)
@@ -81,20 +82,22 @@ The Receiver function operates only when explicitly enabled by the user via the 
 - **Crucial Role**: Acts as a **Network Proxy** to avoid Mixed Content errors (HTTPS page requesting HTTP localhost) and leverage `host_permissions` to bypass CORS.
 - **Message Handlers**:
   - `CMD_UPLOAD`: Receives payload, executes `POST /upload`.
-  - `CMD_FETCH`: Executes `GET /fetch`, returns result.
   - `CMD_CAPTURE`: Executes `chrome.tabs.captureVisibleTab`, returns Base64 image.
+  - `CMD_SET_RECEIVING`: Toggle receiving state for a tab (only supported on Gemini/ChatGPT/Claude).
+- **Polling/Fan-out**: Background polls `/fetch` every second only if there is at least one receiving tab, and broadcasts a single payload to all receiving tabs (`CMD_PAYLOAD`).
 
 **B. Settings (`options.ts`):**
 
 - Manage via `chrome.storage.sync`:
-  1.  `serverUrl` (Default: `http://localhost:5000`)
+  1.  `serverUrl` (Default: `http://localhost:5858`)
   2.  `apiKey` (This will be sent in the `X-Api-Key` header)
   3.  `targetSelectors`: Array of `{ urlPattern: string, selector: string }`.
 
 **C. Popup (`popup.ts`):**
 
-- UI for toggling the Receiver Mode.
-- State (`isReceiving`: boolean) is saved in `chrome.storage.local`.
+- Per-tab toggle for Receiver Mode (only on supported AI hosts).
+- Displays a list of receiving tabs with ability to focus/disable each.
+- Receiving state stored in `chrome.storage.local` as a map of tab IDs.
 
 **D. Sender Logic:**
 
@@ -111,13 +114,12 @@ The Receiver function operates only when explicitly enabled by the user via the 
 
 **E. Receiver Logic (`receiver.ts` loaded by `content.ts`):**
 
-- **Polling Control**:
-  - On AI pages (Gemini/ChatGPT/Claude), checks `isReceiving` flag.
-  - If ON: `setInterval` (1000ms) -> `runtime.sendMessage({ type: 'CMD_FETCH' })`.
+- **Delivery**:
+  - Listens for `CMD_PAYLOAD` broadcast from background; no polling in content scripts.
 - **DOM Strategy**:
-  - **Gemini**: `div[contenteditable="true"]` -> Paste Image -> Insert Text.
-  - **ChatGPT**: `#prompt-textarea` -> Paste Image -> Insert Text -> **Dispatch Input Event**.
-  - **Claude**: `div[contenteditable="true"]` -> Paste Image -> Insert Text.
+  - **Gemini**: `div[contenteditable="true"]` -> Paste Image -> Insert Text -> Wait -> Click send button.
+  - **ChatGPT**: Contenteditable area -> Paste Image -> Insert Text -> Wait -> Click send button.
+  - **Claude**: Contenteditable text insert + attach image via `input#chat-input-file-upload-bottom` -> Wait -> Click send button.
 
 ## 7. Implementation Tasks
 

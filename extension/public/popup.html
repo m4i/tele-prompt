@@ -5,18 +5,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TelePrompt</title>
   <style>
-    body { font-family: sans-serif; width: 240px; padding: 12px; }
+    body { font-family: sans-serif; width: 320px; padding: 12px; }
     .row { display: flex; align-items: center; justify-content: space-between; }
     label { font-weight: 600; }
     button { margin-top: 12px; width: 100%; padding: 8px; }
+    ul { list-style: none; padding: 0; margin: 8px 0 0; }
+    li { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #eee; gap: 8px; }
+    .title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .actions { display: flex; gap: 6px; }
+    .link-btn { margin: 0; width: auto; padding: 6px 10px; }
   </style>
 </head>
 <body>
   <div class="row">
-    <label for="toggle">Receiver Mode</label>
+    <label for="toggle">Receiver (this tab)</label>
     <input type="checkbox" id="toggle" />
   </div>
   <p id="status"></p>
+  <h3>Receiving tabs</h3>
+  <ul id="receivingList"></ul>
   <button id="openOptions">Open Options</button>
   <script type="module" src="dist/popup.js"></script>
 </body>

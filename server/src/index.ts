@@ -34,11 +34,11 @@ app.post('/upload', async (c) => {
     return c.json({ error: 'Invalid JSON body' }, 400);
   }
 
-  if (typeof body.timestamp !== 'number') {
-    return c.json({ error: 'Missing or invalid timestamp' }, 400);
-  }
-
-  storedPayload = body;
+  storedPayload = {
+    image: body.image,
+    text: body.text,
+    timestamp: Date.now()
+  };
   return c.json({ ok: true });
 });
 
@@ -56,7 +56,7 @@ app.get('/fetch', (c) => {
   return c.json({ found: true, payload });
 });
 
-const port = Number(process.env.PORT) || 5000;
+const port = Number(process.env.PORT) || 5858;
 
 serve({
   fetch: app.fetch,

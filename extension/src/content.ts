@@ -19,7 +19,6 @@ const sendMessage = <T,>(payload: any) =>
 
 document.addEventListener('dblclick', async (event) => {
   if (isUploading) return;
-
   const settings = await getSettings();
   const selector = findMatchingSelector(window.location.href, settings.targetSelectors);
   if (!selector) return;

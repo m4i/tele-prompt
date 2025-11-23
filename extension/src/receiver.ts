@@ -1,80 +1,57 @@
-import {
-  dataUrlToFile,
-  dispatchInputEvent,
-  getIsReceiving,
-  Payload
-} from './utils';
+import { dataUrlToFile, dispatchInputEvent, isSupportedServiceUrl, Payload } from './utils';
 
-const CMD_FETCH = 'CMD_FETCH';
-
-let intervalId: number | null = null;
+const CMD_PAYLOAD = 'CMD_PAYLOAD';
 
 export const initReceiver = () => {
-  if (intervalId !== null) return;
-  intervalId = window.setInterval(tick, 1000);
-};
+  chrome.runtime.onMessage.addListener(async (message, _sender, _sendResponse) => {
+    if (message?.type !== CMD_PAYLOAD) return;
+    const service = detectService();
+    if (!service) return;
 
-const sendMessage = <T,>(payload: any) =>
-  new Promise<T>((resolve, reject) => {
-    chrome.runtime.sendMessage(payload, (response) => {
-      if (chrome.runtime.lastError) {
-        reject(chrome.runtime.lastError);
-        return;
-      }
-      resolve(response as T);
-    });
+    try {
+      await applyPayload(service, message.payload as Payload);
+    } catch (error) {
+      console.error('Receiver apply failed', error);
+    }
   });
-
-async function tick() {
-  const isReceiving = await getIsReceiving();
-  if (!isReceiving) return;
-
-  const service = detectService();
-  if (!service) return;
-
-  try {
-    const response = await sendMessage<{ ok: boolean; found?: boolean; payload?: Payload; error?: string }>(
-      {
-        type: CMD_FETCH
-      }
-    );
-
-    if (!response?.ok) {
-      if (response?.error) console.error('Fetch error', response.error);
-      return;
-    }
-
-    if (response.found && response.payload) {
-      await applyPayload(service, response.payload);
-    }
-  } catch (error) {
-    console.error('Receiver tick failed', error);
-  }
-}
+};
 
 type Service = 'gemini' | 'chatgpt' | 'claude';
 
 function detectService(): Service | null {
   const href = window.location.href;
-  if (href.includes('gemini.google.com')) return 'gemini';
-  if (href.includes('chatgpt.com')) return 'chatgpt';
-  if (href.includes('claude.ai')) return 'claude';
+  if (!isSupportedServiceUrl(href)) return null;
+  try {
+    const host = new URL(href).hostname;
+    if (host.endsWith('gemini.google.com')) return 'gemini';
+    if (host.endsWith('chatgpt.com')) return 'chatgpt';
+    if (host.endsWith('claude.ai')) return 'claude';
+  } catch (error) {
+    return null;
+  }
   return null;
-}
+  }
 
 async function applyPayload(service: Service, payload: Payload) {
   if (service === 'gemini') {
     await handleContentEditable('div[contenteditable="true"]', payload);
+    await wait(payload.image ? 5000 : 1000);
+    await clickSendButton(['button.send-button']);
     return;
   }
 
   if (service === 'claude') {
-    await handleContentEditable('div[contenteditable="true"]', payload);
+    await handleClaudePayload(payload);
+    await wait(payload.image ? 5000 : 1000);
+    await clickSendButton(['button[aria-label="メッセージを送信"]']);
     return;
   }
 
   if (service === 'chatgpt') {
-    await handleChatGpt(payload);
+    await handleContentEditable('div[contenteditable="true"]', payload);
+    await wait(payload.image ? 5000 : 1000);
+    await clickSendButton(['#composer-submit-button']);
+    return;
   }
 }
 
@@ -91,17 +68,14 @@ async function handleContentEditable(selector: string, payload: Payload) {
   }
 }
 
-async function handleChatGpt(payload: Payload) {
-  const textarea = document.querySelector<HTMLTextAreaElement>('#prompt-textarea');
-  if (!textarea) return;
-
+async function handleClaudePayload(payload: Payload) {
+  const target = document.querySelector<HTMLElement>('div[contenteditable="true"]');
   if (payload.image) {
-    await pasteImage(textarea, payload.image);
+    await attachClaudeImage(payload.image);
   }
 
-  if (payload.text !== undefined) {
-    textarea.value = payload.text;
-    dispatchInputEvent(textarea);
+  if (payload.text && target) {
+    focusAndInsertText(target, payload.text);
   }
 }
 
@@ -121,8 +95,35 @@ async function pasteImage(element: Element, dataUrl: string) {
 
   const event = new ClipboardEvent('paste', {
     clipboardData: dataTransfer,
-    bubbles: true
+    bubbles: true,
   });
 
   element.dispatchEvent(event);
+}
+
+async function clickSendButton(selectors: string[]) {
+  for (const selector of selectors) {
+    const button = document.querySelector<HTMLButtonElement>(selector);
+    if (button) {
+      button.click();
+      return;
+    }
+  }
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function attachClaudeImage(dataUrl: string) {
+  const input = document.querySelector<HTMLInputElement>('#chat-input-file-upload-bottom');
+  if (!input) return;
+
+  const file = await dataUrlToFile(dataUrl, `teleprompt-${Date.now()}.png`);
+  const dataTransfer = new DataTransfer();
+  dataTransfer.items.add(file);
+  input.files = dataTransfer.files;
+
+  const changeEvent = new Event('change', { bubbles: true });
+  input.dispatchEvent(changeEvent);
 }
