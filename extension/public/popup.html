@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TelePrompt</title>
+  <style>
+    body { font-family: sans-serif; width: 240px; padding: 12px; }
+    .row { display: flex; align-items: center; justify-content: space-between; }
+    label { font-weight: 600; }
+    button { margin-top: 12px; width: 100%; padding: 8px; }
+  </style>
+</head>
+<body>
+  <div class="row">
+    <label for="toggle">Receiver Mode</label>
+    <input type="checkbox" id="toggle" />
+  </div>
+  <p id="status"></p>
+  <button id="openOptions">Open Options</button>
+  <script type="module" src="dist/popup.js"></script>
+</body>
+</html>

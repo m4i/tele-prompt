@@ -1,0 +1,14 @@
+{
+  "name": "tele-prompt-extension",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/background.ts src/content.ts src/popup.ts src/options.ts src/receiver.ts src/utils.ts --bundle --sourcemap --outdir=public/dist --format=esm",
+    "build:watch": "npm run build -- --watch"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.267",
+    "esbuild": "^0.23.0",
+    "typescript": "^5.5.4"
+  }
+}

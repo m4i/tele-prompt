@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TelePrompt Options</title>
+  <style>
+    body { font-family: sans-serif; max-width: 720px; margin: 24px auto; padding: 0 16px; }
+    label { display: block; font-weight: 600; margin-top: 16px; }
+    input, textarea { width: 100%; padding: 8px; margin-top: 6px; }
+    button { margin-top: 16px; padding: 10px 14px; }
+    code { background: #f3f3f3; padding: 4px 6px; }
+  </style>
+</head>
+<body>
+  <h1>TelePrompt Options</h1>
+  <label>Server URL
+    <input type="text" id="serverUrl" placeholder="http://localhost:5000" />
+  </label>
+  <label>API Key
+    <input type="text" id="apiKey" placeholder="API key" />
+  </label>
+  <label>Target Selectors (JSON array)
+    <textarea id="targetSelectors" rows="6" placeholder='[{"urlPattern":"chatgpt.com","selector":"#prompt-textarea"}]'></textarea>
+  </label>
+  <button id="save">Save</button>
+  <p id="status"></p>
+  <p>Entries use <code>{ urlPattern, selector }</code>. The content script checks <code>window.location.href</code> against each pattern.</p>
+  <script type="module" src="dist/options.js"></script>
+</body>
+</html>

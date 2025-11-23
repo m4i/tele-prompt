@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "TelePrompt",
+  "version": "1.0.0",
+  "description": "Send selections and screenshots between pages and auto-fill AI chat boxes.",
+  "permissions": ["contextMenus", "activeTab", "storage", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "dist/background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["dist/content.js"],
+      "run_at": "document_end"
+    }
+  ]
+}
