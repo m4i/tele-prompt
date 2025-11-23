@@ -92,7 +92,7 @@ The Receiver function operates only when explicitly enabled by the user via the 
 - Manage via `chrome.storage.sync`:
   1.  `serverUrl` (Default: `http://localhost:5858`)
   2.  `apiKey` (This will be sent in the `X-Api-Key` header)
-  3.  `targetSelectors`: Array of `{ urlPattern: string, selector: string }`. Default points to `https://github.com/m4i/tele-prompt/blob/main/sample.md` with `.teleprompt-item`.
+  3.  `targetSelectors`: Array of `{ urlPattern: string, selector: string }`. Default points to `https://github.com/m4i/tele-prompt/blob/main/sample.md` with `article.markdown-body > div`.
 
 **C. Popup (`popup.ts`):**
 

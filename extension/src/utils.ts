@@ -27,7 +27,7 @@ export const DEFAULT_SETTINGS: Settings = {
   serverUrl: 'http://localhost:5858',
   apiKey: '',
   targetSelectors: [
-    { urlPattern: 'https://github.com/m4i/tele-prompt/blob/main/sample.md', selector: '.teleprompt-item' },
+    { urlPattern: 'https://github.com/m4i/tele-prompt/blob/main/sample.md', selector: 'article.markdown-body > div' },
   ],
 };
 

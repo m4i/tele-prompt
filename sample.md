@@ -1,29 +1,29 @@
 # TelePrompt Sample Prompts
 
-<p class="teleprompt-item">
-Summarize the key points of this article in 3 bullet points. Focus on actionable insights.
-</p>
+<div>
+List exactly 3 actionable tips to improve remote team communication and 1 key risk to monitor.
+</div>
 
 <br><br>
 
-<p class="teleprompt-item">
-Rewrite the following paragraph to be clearer and more concise while preserving all facts.
-</p>
+<div>
+Rewrite this sentence to be shorter but keep the meaning: "The product launch timeline must account for testing, documentation, and training."
+</div>
 
 <br><br>
 
-<p class="teleprompt-item">
-Generate 5 alternative titles optimized for SEO for this content.
-</p>
+<div>
+Generate 5 SEO-friendly titles (under 60 characters) for a blog post about "sustainable travel essentials."
+</div>
 
 <br><br>
 
-<p class="teleprompt-item">
-Create a step-by-step checklist to implement the recommendations in this text.
-</p>
+<div>
+Create a step-by-step checklist for preparing a 10-minute conference talk on machine learning safety.
+</div>
 
 <br><br>
 
-<p class="teleprompt-item">
-Extract all entities (people, organizations, locations, dates) and present them as a JSON array.
-</p>
+<div>
+Solve and show steps: A book costs \$12 and a pen costs \$3. If a student buys 4 books and 6 pens, what is the total cost?
+</div>
