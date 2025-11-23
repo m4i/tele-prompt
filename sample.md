@@ -1,25 +1,29 @@
 # TelePrompt Sample Prompts
 
-<style>
-.teleprompt-item { margin: 24px 0; padding: 12px; border: 1px solid #ddd; border-radius: 8px; }
-</style>
-
-<div class="teleprompt-item prompt-1">
+<p class="teleprompt-item">
 Summarize the key points of this article in 3 bullet points. Focus on actionable insights.
-</div>
+</p>
 
-<div class="teleprompt-item prompt-2">
+<br><br>
+
+<p class="teleprompt-item">
 Rewrite the following paragraph to be clearer and more concise while preserving all facts.
-</div>
+</p>
 
-<div class="teleprompt-item prompt-3">
+<br><br>
+
+<p class="teleprompt-item">
 Generate 5 alternative titles optimized for SEO for this content.
-</div>
+</p>
 
-<div class="teleprompt-item prompt-4">
+<br><br>
+
+<p class="teleprompt-item">
 Create a step-by-step checklist to implement the recommendations in this text.
-</div>
+</p>
 
-<div class="teleprompt-item prompt-5">
+<br><br>
+
+<p class="teleprompt-item">
 Extract all entities (people, organizations, locations, dates) and present them as a JSON array.
-</div>
+</p>
