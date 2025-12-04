@@ -28,7 +28,7 @@ document.addEventListener('dblclick', async (event) => {
 
   isUploading = true;
   try {
-    const rect = target.getBoundingClientRect();
+    const rect = getViewportRect(target);
     console.debug('TelePrompt: dblclick target matched', { selector, rect });
     const captureResponse = await sendMessage<{ ok: boolean; image?: string; error?: string }>({
       type: CMD_CAPTURE,
@@ -65,6 +65,29 @@ document.addEventListener('dblclick', async (event) => {
 });
 
 initReceiver();
+
+// Convert an element's bounding rect to the top-level viewport, accounting for nested iframes.
+function getViewportRect(target: HTMLElement): DOMRect {
+  let rect = target.getBoundingClientRect();
+  let currentWindow: Window | null = window;
+
+  try {
+    while (currentWindow !== currentWindow.parent && currentWindow.frameElement) {
+      const frameRect = currentWindow.frameElement.getBoundingClientRect();
+      rect = new DOMRect(
+        rect.left + frameRect.left,
+        rect.top + frameRect.top,
+        rect.width,
+        rect.height
+      );
+      currentWindow = currentWindow.parent;
+    }
+  } catch (error) {
+    console.warn('TelePrompt: failed to walk frame chain for rect', error);
+  }
+
+  return rect;
+}
 
 async function cropImage(dataUrl: string, rect: DOMRect): Promise<string> {
   const image = await loadImage(dataUrl);
